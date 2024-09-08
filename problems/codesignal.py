@@ -34,9 +34,33 @@
 
 def text_editor(operations):
     res = []
+    stack = [] # save the states of successful backspace and insert changes
     for operation in operations:
         op = operation.split(" ")
-
+        op_type = op[0]
+        if op_type == "INSERT":
+            if res:
+                res.append(res[-1] + op[1]) 
+                stack.append(res[-1])
+            else:
+                res.append(op[1])
+                stack.append(res[-1])
+        elif op_type == "BACKSPACE":
+            if res:
+                old_text = res[-1]
+                res.append(old_text[0:len(old_text) - 1]) 
+                stack.append(res[-1])
+        else:
+            # undo it
+            if stack:
+                stack.pop(-1)
+                if stack:
+                    res.append(stack[-1]) # popping twice is wrong
+                else:
+                    res.append("")
+        print(stack, "\n", res)
+    return res
+        
 operations = ["INSERT hello", "INSERT world", "BACKSPACE", "BACKSPACE", "UNDO", "INSERT !", "UNDO"]
 result = text_editor(operations)
 print(result)
